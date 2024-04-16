@@ -52,9 +52,6 @@ export const insertarDatosPreactivaciontarjetas = async (req, res) => {
                 'Content-Type': 'application/json'
           }
         });
-        if (respuesta.data.errors) {
-          throw new Error(respuesta.data.errors[0].message);
-        }
         console.log(respuesta.data);
         if (respuesta.status === 200) {
             res.status(200).json({ status: 200, message: "Datos insertados correctamente" });
@@ -71,28 +68,20 @@ export const insertarDatosPreactivaciontarjetas = async (req, res) => {
 
 export const obtenerPreactivaciontarjetas = async (req, res) => {
   try {
-    const respuesta = await axios.post(BASE_URL_HASURA, {
-      query: `
-      query ObtenerPreactivacionTarjetas {
-        dbo_PreactivacionTarjetas {
-          tarjeta
-          fecha_activacion
-          vig_i_act
-          vig_f_act
-          asignada
-          mon_act
-          desc_act
-        }
-      }`
-    }, {
+    const rutaObtenerPreactivacionTarjetasHasura =
+    process.env.BASE_URL_HASURA +
+    process.env.URL_OBTENER_PREACTIVACIONTARJETAS_HASURA;
+    const respuesta = await axios({
+      method: "get",
+      url: rutaObtenerPreactivacionTarjetasHasura,
       headers: {
         'x-hasura-admin-secret': HASURA_ADMIN_SECRET,
         'Content-Type': 'application/json'
       }
     });
     console.log(respuesta.data);
-    if (respuesta.data && respuesta.data.data && respuesta.data.data.dbo_PreactivacionTarjetas.length > 0) {
-      res.status(200).json(respuesta.data.data.dbo_PreactivacionTarjetas);
+    if (respuesta.status === 200 && respuesta.data.dbo_PreactivacionTarjetas.length > 0) {
+      res.status(200).json(respuesta.data.dbo_PreactivacionTarjetas);
     } else {
       res.status(404).json({ status: 404, message: "No se encontraron datos" });
     }
@@ -103,33 +92,25 @@ export const obtenerPreactivaciontarjetas = async (req, res) => {
 };
 
 export const obtenerPreactivaciontarjeta = async (req, res) => {
-  const { tarjeta } = req.params;
   try {
-    const respuesta = await axios.post(BASE_URL_HASURA, {
-      query: `
-      query ObtenerPreactivacionTarjeta($tarjeta: String!) {
-        dbo_PreactivacionTarjetas(where: {tarjeta: {_eq: $tarjeta}}) {
-          tarjeta
-          fecha_activacion
-          vig_i_act
-          vig_f_act
-          asignada
-          mon_act
-          desc_act
-        }
-      }`, 
-      variables: {
+    const { tarjeta } = req.params;
+    const rutaObtenerPreactivacionTarjetaHasura = 
+    process.env.BASE_URL_HASURA + 
+    process.env.URL_OBTENER_PREACTIVACIONTARJETA_HASURA;
+    const respuesta = await axios({
+      method: "get",
+      url: rutaObtenerPreactivacionTarjetaHasura,
+      params: {
         tarjeta: tarjeta
-      }
-    }, {
+      },
       headers: {
         'x-hasura-admin-secret': HASURA_ADMIN_SECRET,
         'Content-Type': 'application/json'
       }
     });
     console.log(respuesta.data);
-    if (respuesta.data && respuesta.data.data && respuesta.data.data.dbo_PreactivacionTarjetas.length > 0) {
-      res.status(200).json(respuesta.data.data.dbo_PreactivacionTarjetas);
+    if (respuesta.status && respuesta.data.dbo_PreactivacionTarjetas.length > 0) {
+      res.status(200).json(respuesta.data.dbo_PreactivacionTarjetas);
     } else {
       res.status(404).json({ status:404, message: "No se encontraron datos para la tarjeta proporcionada" });
     }
@@ -167,18 +148,6 @@ export const eliminarPreactivaciontarjeta = async (req, res) => {
     res.status(500).json({ status: 500, message: "Error al eliminar la tarjeta", error: error.response.data.error });
   }
 };
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 export const actualizarDatosPreactivaciontarjeta = async (req, res) => {

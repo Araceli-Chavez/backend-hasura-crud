@@ -7,6 +7,7 @@ export const validacionBodyTarjeta = [
         .trim()
         .isNumeric()
         .isLength({min: 13, max: 13})
+        .withMessage("La tarjeta debe contener exactamente 13 digitos")
         .custom((value) => {
             if (!value.startsWith("71") && !value.startsWith("75") && !value.startsWith("77")) {
                 throw new Error("Verifica que el número de tarjeta inicie con 71, 75, o 77");
@@ -21,6 +22,7 @@ export const validacionParamTarjeta = [
         .trim()
         .isNumeric()
         .isLength({min: 13, max: 13})
+        .withMessage("La tarjeta debe contener exactamente 13 digitos")
         .custom((value) => {
             if (!value.startsWith("71") && !value.startsWith("75") && !value.startsWith("77")) {
                 throw new Error("Verifica que el número de tarjeta inicie con 71, 75, o 77");
